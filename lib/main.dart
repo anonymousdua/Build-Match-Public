@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -11,7 +10,13 @@ import 'services/supabase_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+  // window_manager is desktop-only. defaultTargetPlatform (unlike dart:io's
+  // Platform) is safe to read on the web.
+  final isDesktop = !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.windows ||
+          defaultTargetPlatform == TargetPlatform.linux ||
+          defaultTargetPlatform == TargetPlatform.macOS);
+  if (isDesktop) {
     await windowManager.ensureInitialized();
     const options = WindowOptions(
       title: 'BuildMatch',

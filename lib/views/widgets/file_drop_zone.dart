@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -55,7 +56,9 @@ class _FileDropZoneState extends State<FileDropZone> {
     if (result == null) return;
     final files = <PickedFile>[];
     for (final f in result.files) {
-      final bytes = f.bytes ?? (f.path != null ? await File(f.path!).readAsBytes() : null);
+      // withData gives bytes on every platform; reading from disk is only a
+      // desktop fallback (paths don't exist on the web).
+      final bytes = f.bytes ?? (!kIsWeb && f.path != null ? await File(f.path!).readAsBytes() : null);
       if (bytes != null) files.add(PickedFile(f.name, bytes));
     }
     if (files.isNotEmpty) widget.onFiles(files);

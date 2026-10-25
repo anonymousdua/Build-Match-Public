@@ -1,0 +1,51 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "framework": null,
+    "installCommand": "(command -v unzip >/dev/null || dnf install -y unzip) && if [ -d .flutter-sdk ]; then git -C .flutter-sdk pull --ff-only; else git clone https://github.com/flutter/flutter.git --branch stable --depth 1 .flutter-sdk; fi && .flutter-sdk/bin/flutter --version",
+    "buildCommand": "touch .env && .flutter-sdk/bin/flutter config --enable-web --no-analytics && .flutter-sdk/bin/flutter pub get && .flutter-sdk/bin/flutter build web --release --dart-define=SUPABASE_URL=$SUPABASE_URL --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY",
+    "outputDirectory": "build/web",
+    "rewrites": [
+      {
+        "source": "/(.*)",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "/(index.html|flutter_service_worker.js|flutter_bootstrap.js|version.json)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "/assets/(.*)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=3600"
+          }
+        ]
+      },
+      {
+        "source": "/(.*)",
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "DENY"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          }
+        ]
+      }
+    ]
+  }
+  

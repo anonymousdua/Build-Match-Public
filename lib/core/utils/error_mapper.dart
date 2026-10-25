@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -16,12 +15,17 @@ class ErrorMapper {
     if (error is AuthException) return _auth(error);
     if (error is PostgrestException) return _postgrest(error);
     if (error is StorageException) return _storage(error);
-    if (error is SocketException || error is HttpException || error is TimeoutException) {
-      return "Can't reach the server. Check your internet connection and try again.";
-    }
     if (error is AppException) return error.message;
-    final text = error.toString();
-    if (text.contains('SocketException') || text.contains('ClientException') || text.contains('Failed host lookup')) {
+    // Network failures: matched by type name / text so this file has no
+    // dart:io dependency and works on both Windows and the web.
+    final text = '${error.runtimeType} $error';
+    if (error is TimeoutException ||
+        text.contains('SocketException') ||
+        text.contains('HttpException') ||
+        text.contains('ClientException') ||
+        text.contains('Failed host lookup') ||
+        text.contains('XMLHttpRequest error') ||
+        text.contains('Failed to fetch')) {
       return "Can't reach the server. Check your internet connection and try again.";
     }
     return _fallback;

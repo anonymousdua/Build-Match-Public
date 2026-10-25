@@ -60,6 +60,43 @@ class _RouterHostState extends State<_RouterHost> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       routerConfig: _router,
+      // The layout is designed for ≥1180×720 (the desktop window minimum).
+      // In a smaller browser window, keep that size and scroll instead of
+      // squeezing the sidebar and tables.
+      builder: (context, child) => _MinCanvas(child: child ?? const SizedBox.shrink()),
     );
+  }
+}
+
+class _MinCanvas extends StatelessWidget {
+  const _MinCanvas({required this.child});
+  final Widget child;
+
+  static const _minWidth = 1180.0;
+  static const _minHeight = 720.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, c) {
+      final tooNarrow = c.maxWidth < _minWidth;
+      final tooShort = c.maxHeight < _minHeight;
+      if (!tooNarrow && !tooShort) return child;
+
+      final w = tooNarrow ? _minWidth : c.maxWidth;
+      final h = tooShort ? _minHeight : c.maxHeight;
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: SingleChildScrollView(
+          child: SizedBox(
+            width: w,
+            height: h,
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(size: Size(w, h)),
+              child: child,
+            ),
+          ),
+        ),
+      );
+    });
   }
 }
