@@ -1,0 +1,12 @@
+# Never upload local secrets or build output (Vercel builds from source)
+.env
+.env.*
+!.env.example
+build/
+.dart_tool/
+.flutter-sdk/
+windows/
+linux/
+macos/
+android/
+ios/
